@@ -16,7 +16,8 @@ void PrintFormat(const char* p)
 	std::cout << "----------"<<p<<"----------" << std::endl;
 }
 
-void TestPutInt(BinarySearchTree<int>& bst)
+template<typename T>
+void TestPutInt(BinarySearchTree<T>& bst)
 {
 	PrintFormat("TestPutInt");
 
@@ -27,13 +28,14 @@ void TestPutInt(BinarySearchTree<int>& bst)
 
 	for (int i=0;i<100;i++)
 	{
-		bst.Put(uniform_dist(e1));
+		bst.Put(T(uniform_dist(e1)));
 	}
 
 	std::cout << "size:" << bst.Size() << std::endl;
 }
 
-void TestFloor(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestFloor(const BinarySearchTree<T>& bst)
 {
 	if (bst.GetRoot() == nullptr)
 	{
@@ -46,7 +48,7 @@ void TestFloor(const BinarySearchTree<int>& bst)
 	std::default_random_engine e1(r());
 	std::uniform_int_distribution<int> uniform_dist(1, 1000);
 	
-	int finder = uniform_dist(e1);
+	T finder(uniform_dist(e1));
 	std::cout << "val of root:" << bst.GetRoot()->val << std::endl;
 	std::cout << "floor finder:" << finder << std::endl;
 	
@@ -59,7 +61,8 @@ void TestFloor(const BinarySearchTree<int>& bst)
 	std::cout << "floor:" << node->val<< std::endl;
 }
 
-void TestCeiling(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestCeiling(const BinarySearchTree<T>& bst)
 {
 	if (bst.GetRoot() == nullptr)
 	{
@@ -72,7 +75,7 @@ void TestCeiling(const BinarySearchTree<int>& bst)
 	std::default_random_engine e1(r());
 	std::uniform_int_distribution<int> uniform_dist(1, 1000);
 
-	int finder = uniform_dist(e1);
+	T finder( uniform_dist(e1));
 	std::cout << "val of root:" << bst.GetRoot()->val << std::endl;
 	std::cout << "ceiling finder:" << finder << std::endl;
 
@@ -85,7 +88,8 @@ void TestCeiling(const BinarySearchTree<int>& bst)
 	std::cout << "ceiling:" << node->val << std::endl;
 }
 
-void TestMin(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestMin(const BinarySearchTree<T>& bst)
 {
 	if (bst.GetRoot() == nullptr)
 	{
@@ -98,7 +102,8 @@ void TestMin(const BinarySearchTree<int>& bst)
 	std::cout <<"min val:"<< node->val << std::endl;
 }
 
-void TestMax(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestMax(const BinarySearchTree<T>& bst)
 {
 	if (bst.GetRoot() == nullptr)
 	{
@@ -110,12 +115,13 @@ void TestMax(const BinarySearchTree<int>& bst)
 	std::cout << "max val:" << node->val << std::endl;
 }
 
-void TestRankAndSelect(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestRankAndSelect(const BinarySearchTree<T>& bst)
 {
 	PrintFormat("TestRankAndSelect");
 
 	int ranking = 0;
-	int test_val = 0;
+	T test_val(0);
 	bst.MiddleOrderWithRecursion([&ranking, &test_val](const auto& val)
 	{
 		++ranking;
@@ -130,7 +136,8 @@ void TestRankAndSelect(const BinarySearchTree<int>& bst)
 	std::cout << "real val:" << test_val << " test val:" << bst.Select(20)->val << std::endl;
 }
 
-void TestHeight(const BinarySearchTree<int>& bst)
+template<typename T>
+void TestHeight(const BinarySearchTree<T>& bst)
 {
 	PrintFormat("TestHeight");
 
@@ -149,6 +156,17 @@ public:
 		update_time_ = duration_in_ms.count();
 	}
 
+	Player(const Player& p) = default;
+	Player& operator=(const Player& p) = default;
+
+	Player(Player&& p) = default;
+	Player& operator=(Player&& p) = default;
+
+	~Player()
+	{
+		//std::cout << "~Player() fight_val_:"<< fight_val_ << std::endl;
+	}
+
 	const int FightVal() const noexcept
 	{
 		return fight_val_;
@@ -159,7 +177,14 @@ public:
 		return update_time_;
 	}
 
-	bool operator<(const Player& dst)
+	friend std::ostream & operator <<(std::ostream & os,const Player& dst)
+	{
+		os << dst.fight_val_;
+
+		return os;
+	}
+
+	bool operator<(const Player& dst)const
 	{
 		if (FightVal() < dst.FightVal())
 		{
@@ -181,6 +206,53 @@ public:
 
 		return false;
 	}
+
+	bool operator>(const Player& dst)const
+	{
+		if (FightVal() > dst.FightVal())
+		{
+			return true;
+		}
+		else if (FightVal() < dst.FightVal())
+		{
+			return false;
+		}
+
+		if (UpdateTime() < dst.UpdateTime())
+		{
+			return true;
+		}
+		else if (UpdateTime() > dst.UpdateTime())
+		{
+			return false;
+		}
+
+		return false;
+	}
+
+	bool operator >=(const Player& dst)const 
+	{
+		if (FightVal() >= dst.FightVal())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	bool operator <=(const Player& dst)const
+	{
+		if (FightVal() <= dst.FightVal())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 	
 private:
 	int fight_val_;
@@ -190,7 +262,7 @@ private:
 int main()
 {
 	{
-		BinarySearchTree<int> bst;
+		BinarySearchTree<Player> bst;
 
 		TestPutInt(bst);
 		TestFloor(bst);
@@ -201,10 +273,6 @@ int main()
 		bst.DelMax();
 		TestRankAndSelect(bst);
 		TestHeight(bst);
-	}
-
-	{
-
 	}
 
 	system("pause");

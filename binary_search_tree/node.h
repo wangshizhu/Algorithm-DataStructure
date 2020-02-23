@@ -11,12 +11,12 @@ struct Node
 	Node& operator=(const Node&) = delete;
 
 	template<typename NodeValType>
-	explicit Node(NodeValType&& param) :left(nullptr), right(nullptr), val(param), sub_node_num(1)
+	explicit Node(NodeValType&& param) :left(nullptr), right(nullptr), val(std::forward<NodeValType>(param)), sub_node_num(1)
 	{
 	}
 
-	std::shared_ptr<Node<T>> left;
-	std::shared_ptr<Node<T>> right;
+	std::unique_ptr<Node<T>> left;
+	std::unique_ptr<Node<T>> right;
 
 	T val;
 
