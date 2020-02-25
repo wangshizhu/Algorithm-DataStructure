@@ -441,7 +441,7 @@ private:
 	template<typename TTraversingCb>
 	void LastOrderWithRecursion(NodeType* node, TTraversingCb&& fun)const noexcept
 	{
-		if (nullptr == pRoot)
+		if (nullptr == node)
 		{
 			return;
 		}
