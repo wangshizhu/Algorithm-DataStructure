@@ -43,6 +43,12 @@ public:
 		root_ = Put(std::move(root_), std::forward<NodeValType>(val));
 	}
 
+	template<typename NodeValType>
+	NodeType const*const Get(NodeValType&& val) const noexcept
+	{
+		return Get(root_.get(), std::forward<NodeValType>(val));
+	}
+
 	const int Height()const noexcept
 	{
 		return Height(root_.get());
@@ -151,6 +157,28 @@ private:
 		node->sub_node_num = Size(node->left.get()) + Size(node->right.get()) + 1;
 
 		return node;
+	}
+
+	template<typename NodeValType>
+	NodeType const*const Get(NodeType* node, NodeValType&& val)const noexcept
+	{
+		if (node == nullptr)
+		{
+			return nullptr;
+		}
+		if (val < node->val)
+		{
+			return Get(node->left.get(), std::forward<NodeValType>(val));
+		}
+		else if (val > node->val)
+		{
+			return Get(node->right.get(), std::forward<NodeValType>(val));
+		}
+		else
+		{
+
+			return node
+		}
 	}
 
 	const int Height(NodeType* node)const noexcept
