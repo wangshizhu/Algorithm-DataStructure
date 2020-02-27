@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 
-# set the project name and version
+set(EXECUTABLE_OUTPUT_PATH ../bin)
+
 project(binary_search_tree VERSION 1.0)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    message("COMPILER IS GNUCC")
+    ADD_DEFINITIONS ( -std=c++1y)
+endif(CMAKE_COMPILER_IS_GNUCC)
 
 file(GLOB_RECURSE CURRENT_HEADERS  *.h *.hpp)
 source_group("Header" FILES ${CURRENT_HEADERS}) 
