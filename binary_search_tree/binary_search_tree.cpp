@@ -144,6 +144,21 @@ void TestHeight(const BinarySearchTree<T>& bst)
 	std::cout << "height of BST:" << bst.Height() << std::endl;
 }
 
+template<typename T>
+void TestGet(const BinarySearchTree<T>& bst)
+{
+	PrintFormat("TestGet");
+
+	auto node = bst.Get(T(10));
+	if (node != nullptr)
+	{
+		std::cout << "The Target Val is existed" << std::endl;
+		return;
+	}
+
+	std::cout << "The Target Val isnt existed" << std::endl;
+}
+
 class Player
 {
 public:
@@ -265,6 +280,7 @@ int main()
 		BinarySearchTree<Player> bst;
 
 		TestPutInt(bst);
+		TestGet(bst);
 		TestFloor(bst);
 		TestCeiling(bst);
 		TestMin(bst);
