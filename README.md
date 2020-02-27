@@ -5,3 +5,14 @@
 
 描述语言采用C++，而且编译器需支持C++11、C++14
 
+### Linux构建
+
+1. 安装GCC、CMake
+2. 进入具体模块下，执行build.sh脚本即可
+
+### Windows构建
+	
+1. 到官网下载CMake、VS
+2. 使用CMake GUI生成VS工程
+3. 打开VS工程，在ALL_BUILD点击右键——>生成
+
