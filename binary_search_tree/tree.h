@@ -270,6 +270,22 @@ private:
 		return max_node;
 	}
 
+	UniqueNodeType RemoveMin(NodeType* node)
+	{
+		if (node == nullptr)
+		{
+			return nullptr;
+		}
+		if (node->left->left == nullptr)
+		{
+			auto left = std::move(node->left);
+			node->sub_node_num = Size(node->left.get()) + Size(node->right.get()) + 1;
+			return left;
+		}
+
+		return RemoveMin(node->left.get());
+	}
+
 	UniqueNodeType DelMin(UniqueNodeType node)
 	{
 		if (node == nullptr)
@@ -327,17 +343,26 @@ private:
 		{
 			if (node->left == nullptr)
 			{
-				return node->right;
+				return std::move(node->right);
 			}
 			if (node->right == nullptr)
 			{
-				return node->left;
+				return std::move(node->left);
 			}
-			
-			UniqueNodeType tmp = node;
-			node.reset(Min(tmp->right.get()));
-			node->right = DelMin(std::move(tmp->right));
-			node->left = tmp->left;
+
+			UniqueNodeType left = std::move(node->left);
+			if (node->right->left == nullptr)
+			{
+				node = std::move(node->right);
+				node->left = std::move(left);
+			}
+			else
+			{
+				UniqueNodeType tmp = std::move(node);
+				node = RemoveMin(tmp->right.get());
+				node->left = std::move(left);
+				node->right = std::move(tmp->right);
+			}
 		}
 
 		node->sub_node_num = Size(node->left.get()) + Size(node->right.get()) + 1;

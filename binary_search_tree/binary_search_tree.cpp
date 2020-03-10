@@ -1,4 +1,5 @@
 #include "tree.h"
+#include "node.h"
 
 #include <iostream>
 #include <vector>
@@ -89,17 +90,19 @@ void TestCeiling(const BinarySearchTree<T>& bst)
 }
 
 template<typename T>
-void TestMin(const BinarySearchTree<T>& bst)
+const Node<T>* TestMin(const BinarySearchTree<T>& bst)
 {
 	if (bst.GetRoot() == nullptr)
 	{
-		return;
+		return nullptr;
 	}
 
 	PrintFormat("TestMin");
 
 	auto node = bst.Min();
 	std::cout <<"min val:"<< node->val << std::endl;
+
+	return node;
 }
 
 template<typename T>
@@ -116,7 +119,7 @@ void TestMax(const BinarySearchTree<T>& bst)
 }
 
 template<typename T>
-void TestRankAndSelect(const BinarySearchTree<T>& bst)
+T TestRankAndSelect(const BinarySearchTree<T>& bst)
 {
 	PrintFormat("TestRankAndSelect");
 
@@ -134,6 +137,8 @@ void TestRankAndSelect(const BinarySearchTree<T>& bst)
 
 	std::cout <<"rank of val of test:"<< test_val <<" rank:"<< bst.Rank(test_val) << std::endl;
 	std::cout << "real val:" << test_val << " test val:" << bst.Select(20)->val << std::endl;
+
+	return test_val;
 }
 
 template<typename T>
@@ -287,9 +292,21 @@ int main()
 		TestMax(bst);
 		bst.DelMin();
 		bst.DelMax();
-		TestRankAndSelect(bst);
+		auto del_val = TestRankAndSelect(bst);
+		bst.Delete(del_val);
 		TestHeight(bst);
 	}
+	//{
+	//	BinarySearchTree<int> bst;
+	//	bst.Put(10);
+	//	bst.Put(6);
+	//	bst.Put(5);
+	//	bst.Put(8);
+	//	bst.Put(7);
+	//	bst.Put(9);
+	//	bst.DelMin();
+	//	//bst.Delete(8);
+	//}
 
 	system("pause");
     return 0;
