@@ -165,6 +165,12 @@ public:
 	}
 
 	template<typename TTraversingCb>
+	void DescendTraverse(TTraversingCb&& fun)const noexcept
+	{
+		DescendTraverse(root_.get(), std::forward<TTraversingCb>(fun));
+	}
+
+	template<typename TTraversingCb>
 	void PreOrderWithRecursion(TTraversingCb&& fun)const noexcept
 	{
 		PreOrderWithRecursion(root_.get(), std::forward<TTraversingCb>(fun));
@@ -519,6 +525,19 @@ private:
 		}
 
 		return tmp;
+	}
+
+	template<typename TTraversingCb>
+	void DescendTraverse(NodeType* node, TTraversingCb&& fun)const noexcept
+	{
+		if (nullptr == node)
+		{
+			return;
+		}
+
+		DescendTraverse(node->right.get(), std::forward<TTraversingCb>(fun));
+		fun(node->val);
+		DescendTraverse(node->left.get(), std::forward<TTraversingCb>(fun));
 	}
 
 	template<typename TTraversingCb>
