@@ -149,7 +149,7 @@ private:
 		{
 			node->left = Put(std::move(node->left), std::forward<NodeValType>(param));
 		}
-		else if (param > node->val)
+		else if (node->val < param)
 		{
 			node->right = Put(std::move(node->right), std::forward<NodeValType>(param));
 		}
@@ -170,13 +170,12 @@ private:
 		{
 			return Get(node->left.get(), std::forward<NodeValType>(val));
 		}
-		else if (val > node->val)
+		else if (node->val < val)
 		{
 			return Get(node->right.get(), std::forward<NodeValType>(val));
 		}
 		else
 		{
-
 			return node;
 		}
 	}
@@ -224,7 +223,7 @@ private:
 			return nullptr;
 		}
 
-		if (val >= node->val)
+		if (node->val <= val)
 		{
 			return Ceiling(node->right.get(), std::forward<NodeValType>(val));
 		}
@@ -335,7 +334,7 @@ private:
 		{
 			node->left = Delete(std::move(node->left), std::forward<NodeValType>(val));
 		}
-		else if (val > node->val)
+		else if (node->val < val)
 		{
 			node->right = Delete(std::move(node->right), std::forward<NodeValType>(val));
 		}
@@ -401,7 +400,7 @@ private:
 		{
 			return Rank(node->left.get(), std::forward<NodeValType>(val));
 		}
-		else if (val > node->val)
+		else if (node->val < val)
 		{
 			int rank = Rank(node->right.get(), std::forward<NodeValType>(val));
 			if (rank == 0)

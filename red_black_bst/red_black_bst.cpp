@@ -15,6 +15,8 @@
 #include <ctime>
 #include <random>
 
+int g_id = 1;
+
 void PrintFormat(const char* p)
 {
 	std::cout << std::endl;
@@ -22,7 +24,7 @@ void PrintFormat(const char* p)
 }
 
 template<typename T>
-void TestPutInt(RedBlackBST<T>& bst)
+void TestPutInt(RedBlackBST<T>& bst,int num)
 {
 	PrintFormat("TestPutInt");
 
@@ -31,7 +33,7 @@ void TestPutInt(RedBlackBST<T>& bst)
 	std::default_random_engine e1(r());
 	std::uniform_int_distribution<int> uniform_dist(1, 1000);
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < num; i++)
 	{
 		bst.Put(T(uniform_dist(e1)));
 	}
@@ -123,24 +125,28 @@ void TestMax(const RedBlackBST<T>& bst)
 }
 
 template<typename T>
-T TestRankAndSelect(const RedBlackBST<T>& bst)
+T TestRankAndSelect(const RedBlackBST<T>& bst,int rank)
 {
 	PrintFormat("TestRankAndSelect");
 
 	int ranking = 0;
 	T test_val(0);
-	bst.MiddleOrderWithRecursion([&ranking, &test_val](const auto& val)
+	bst.MiddleOrderWithRecursion([&ranking,&rank, &test_val](const auto& val)
 	{
 		++ranking;
-		if (ranking == 20)
+		if (ranking == rank)
 		{
 			test_val = val;
 		}
-		std::cout << "ranking:" << ranking << " val:" << val << std::endl;
+		//std::cout << "ranking:" << ranking << " val:" << val << std::endl;
 	});
 
 	std::cout << "rank of val of test:" << test_val << " rank:" << bst.Rank(test_val) << std::endl;
-	std::cout << "real val:" << test_val << " test val:" << bst.Select(20)->val << std::endl;
+	auto node = bst.Select(rank);
+	if (node != nullptr)
+	{
+		std::cout << "real val:" << test_val << " test val:" << node->val << std::endl;
+	}
 
 	return test_val;
 }
@@ -174,6 +180,7 @@ public:
 
 	explicit Player(int fight_val) :fight_val_(fight_val)
 	{
+		player_id_ = g_id++;
 		auto now = std::chrono::system_clock::now();
 		auto duration_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
 
@@ -181,7 +188,14 @@ public:
 	}
 
 	Player(const Player& p) = default;
-	Player& operator=(const Player& p) = default;
+	Player& operator=(const Player& p)
+	{
+		this->player_id_ = p.PlayerId();
+		this->update_time_ = p.UpdateTime();
+		this->fight_val_ = p.FightVal();
+
+		return *this;
+	}
 
 	Player(Player&& p) = default;
 	Player& operator=(Player&& p) = default;
@@ -196,9 +210,26 @@ public:
 		return fight_val_;
 	}
 
+	bool SetFightVal(int val)
+	{
+		if (val == FightVal())
+		{
+			return false;
+		}
+
+		fight_val_ = val;
+
+		return true;
+	}
+
 	const std::time_t UpdateTime() const noexcept
 	{
 		return update_time_;
+	}
+
+	const int PlayerId()const noexcept
+	{
+		return player_id_;
 	}
 
 	friend std::ostream & operator <<(std::ostream & os, const Player& dst)
@@ -221,34 +252,11 @@ public:
 
 		if (UpdateTime() < dst.UpdateTime())
 		{
-			return true;
+			return false;
 		}
 		else if (UpdateTime() > dst.UpdateTime())
 		{
-			return false;
-		}
-
-		return false;
-	}
-
-	bool operator>(const Player& dst)const
-	{
-		if (FightVal() > dst.FightVal())
-		{
 			return true;
-		}
-		else if (FightVal() < dst.FightVal())
-		{
-			return false;
-		}
-
-		if (UpdateTime() < dst.UpdateTime())
-		{
-			return true;
-		}
-		else if (UpdateTime() > dst.UpdateTime())
-		{
-			return false;
 		}
 
 		return false;
@@ -256,23 +264,11 @@ public:
 
 	bool operator==(const Player& dst)const 
 	{
-		if (FightVal() == dst.FightVal())
+		if (FightVal() == dst.FightVal() && PlayerId() == dst.PlayerId())
 		{
 			return true;
 		}
 		return false;
-	}
-
-	bool operator >=(const Player& dst)const
-	{
-		if (FightVal() >= dst.FightVal())
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	bool operator <=(const Player& dst)const
@@ -287,25 +283,66 @@ public:
 		}
 	}
 
+	bool operator >=(const Player& dst)const
+	{
+		if (FightVal() > dst.FightVal())
+		{
+			return true;
+		}
+		else if (FightVal() == dst.FightVal())
+		{
+			if (UpdateTime() < dst.UpdateTime())
+			{
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 private:
+	int player_id_;
 	int fight_val_;
 	std::time_t update_time_;
 };
+
+void UpatePlayerFightVal(RedBlackBST<Player>& bst,Player p,int val)
+{
+	// 先删除
+	bst.Delete(p);
+
+	// 对临时变量设置新值
+	p.SetFightVal(val);
+
+	// 再添加
+	bst.Put(std::move(p));
+}
 
 int main()
 {
 	{
 		RedBlackBST<Player> bst;
-		TestPutInt(bst);
-		TestGet(bst);
+		TestPutInt(bst, 100000);
+
+		auto del_val = TestRankAndSelect(bst, 20000);
+		int new_val = del_val.FightVal() + 200;
+
+		auto now = std::chrono::system_clock::now();
+		auto begin = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch());
+
+		UpatePlayerFightVal(bst, del_val, new_val);
+
+		now = std::chrono::system_clock::now();
+		auto end = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch());
+		auto spend = end - begin;
+
+		std::cout << spend.count() << std::endl;
+
 		TestFloor(bst);
 		TestCeiling(bst);
-		TestMin(bst);
-		TestMax(bst);
-		bst.DelMin();
-		bst.DelMax();
-		auto del_val = TestRankAndSelect(bst);
-		bst.Delete(del_val);
 		TestHeight(bst);
 		if (bst.IsBST())
 		{
@@ -340,6 +377,52 @@ int main()
 			std::cout << "no size correct" << std::endl;
 		}
 	}
+	/*{
+		RedBlackBST<Player> bst;
+		TestPutInt(bst,100);
+		TestGet(bst);
+		TestFloor(bst);
+		TestCeiling(bst);
+		TestMin(bst);
+		TestMax(bst);
+		bst.DelMin();
+		bst.DelMax();
+		auto del_val = TestRankAndSelect(bst,20);
+		bst.Delete(del_val);
+		TestHeight(bst);
+		if (bst.IsBST())
+		{
+			std::cout << "is bst" << std::endl;
+		}
+		else
+		{
+			std::cout << "isnt bst" << std::endl;
+		}
+		if (bst.IsBalanced())
+		{
+			std::cout << "balanced" << std::endl;
+		}
+		else
+		{
+			std::cout << "no balanced" << std::endl;
+		}
+		if (bst.Is23Tree())
+		{
+			std::cout << "23Tree" << std::endl;
+		}
+		else
+		{
+			std::cout << "no 23Tree" << std::endl;
+		}
+		if (bst.IsSizeConsistent())
+		{
+			std::cout << "size correct" << std::endl;
+		}
+		else
+		{
+			std::cout << "no size correct" << std::endl;
+		}
+	}*/
 
 	system("pause");
     return 0;

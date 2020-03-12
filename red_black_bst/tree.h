@@ -229,9 +229,13 @@ private:
 		{
 			node->left = Put(std::move(node->left), std::forward<NodeValType>(param));
 		}
-		else if (param > node->val)
+		else if (node->val < param)
 		{
 			node->right = Put(std::move(node->right), std::forward<NodeValType>(param));
+		}
+		else
+		{
+			//std::cout << "same val" << std::endl;
 		}
 
 		// 右子节点是红节点，左子节点是黑节点，要左旋转
@@ -268,13 +272,17 @@ private:
 		{
 			return Get(node->left.get(), std::forward<NodeValType>(val));
 		}
-		else if (val > node->val)
+		else if (node->val < val)
 		{
 			return Get(node->right.get(), std::forward<NodeValType>(val));
 		}
-		else
+		else if (val == node->val)
 		{
 			return node;
+		}
+		else
+		{
+			return nullptr;
 		}
 	}
 
@@ -297,7 +305,7 @@ private:
 		{
 			return true;
 		}
-		if (min_val != nullptr && node->val <= (*min_val))
+		if (min_val != nullptr && (*min_val) >= node->val)
 		{
 			return false;
 		}
@@ -456,7 +464,7 @@ private:
 		{
 			return Rank(node->left.get(), std::forward<NodeValType>(val));
 		}
-		else if (val > node->val)
+		else if (node->val < val)
 		{
 			int rank = Rank(node->right.get(), std::forward<NodeValType>(val));
 			if (rank == 0)
@@ -499,7 +507,7 @@ private:
 			return nullptr;
 		}
 
-		if (val >= node->val)
+		if (node->val <= val)
 		{
 			return Ceiling(node->right.get(), std::forward<NodeValType>(val));
 		}

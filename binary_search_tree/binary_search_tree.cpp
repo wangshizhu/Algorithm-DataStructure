@@ -18,7 +18,7 @@ void PrintFormat(const char* p)
 }
 
 template<typename T>
-void TestPutInt(BinarySearchTree<T>& bst)
+void TestPutInt(BinarySearchTree<T>& bst,int num)
 {
 	PrintFormat("TestPutInt");
 
@@ -27,7 +27,7 @@ void TestPutInt(BinarySearchTree<T>& bst)
 	std::default_random_engine e1(r());
 	std::uniform_int_distribution<int> uniform_dist(1, 1000);
 
-	for (int i=0;i<100;i++)
+	for (int i=0;i<num;i++)
 	{
 		bst.Put(T(uniform_dist(e1)));
 	}
@@ -119,16 +119,16 @@ void TestMax(const BinarySearchTree<T>& bst)
 }
 
 template<typename T>
-T TestRankAndSelect(const BinarySearchTree<T>& bst)
+T TestRankAndSelect(const BinarySearchTree<T>& bst,int rank)
 {
 	PrintFormat("TestRankAndSelect");
 
 	int ranking = 0;
 	T test_val(0);
-	bst.MiddleOrderWithRecursion([&ranking, &test_val](const auto& val)
+	bst.MiddleOrderWithRecursion([&ranking,&rank, &test_val](const auto& val)
 	{
 		++ranking;
-		if (ranking == 20)
+		if (ranking == rank)
 		{
 			test_val = val;
 		}
@@ -217,49 +217,14 @@ public:
 
 		if (UpdateTime() < dst.UpdateTime())
 		{
-			return true;
+			return false;
 		}
 		else if (UpdateTime() > dst.UpdateTime())
 		{
-			return false;
+			return true;
 		}
 
 		return false;
-	}
-
-	bool operator>(const Player& dst)const
-	{
-		if (FightVal() > dst.FightVal())
-		{
-			return true;
-		}
-		else if (FightVal() < dst.FightVal())
-		{
-			return false;
-		}
-
-		if (UpdateTime() < dst.UpdateTime())
-		{
-			return true;
-		}
-		else if (UpdateTime() > dst.UpdateTime())
-		{
-			return false;
-		}
-
-		return false;
-	}
-
-	bool operator >=(const Player& dst)const 
-	{
-		if (FightVal() >= dst.FightVal())
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	bool operator <=(const Player& dst)const
@@ -284,7 +249,7 @@ int main()
 	{
 		BinarySearchTree<Player> bst;
 
-		TestPutInt(bst);
+		TestPutInt(bst,100);
 		TestGet(bst);
 		TestFloor(bst);
 		TestCeiling(bst);
@@ -292,7 +257,7 @@ int main()
 		TestMax(bst);
 		bst.DelMin();
 		bst.DelMax();
-		auto del_val = TestRankAndSelect(bst);
+		auto del_val = TestRankAndSelect(bst,20);
 		bst.Delete(del_val);
 		TestHeight(bst);
 	}
