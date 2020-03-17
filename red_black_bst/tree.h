@@ -4,6 +4,7 @@
 #include "node.h"
 
 #include <memory>
+#include <stack>
 
 template<typename T>
 class RedBlackBST
