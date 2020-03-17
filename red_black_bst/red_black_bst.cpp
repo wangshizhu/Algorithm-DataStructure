@@ -152,6 +152,20 @@ T TestRankAndSelect(const RedBlackBST<T>& bst,int rank)
 }
 
 template<typename T>
+T TestDescend(const RedBlackBST<T>& bst)
+{
+	PrintFormat("TestDescend");
+	int ranking = 0;
+	bst.DescendTraverse([&ranking](const auto& val)
+	{
+		++ranking;
+		std::cout << "ranking:" << ranking << " val:" << val << std::endl;
+	});
+
+	return T(0);
+}
+
+template<typename T>
 void TestHeight(const RedBlackBST<T>& bst)
 {
 	PrintFormat("TestHeight");
@@ -325,6 +339,11 @@ int main()
 {
 	{
 		RedBlackBST<Player> bst;
+		TestPutInt(bst, 100);
+		TestDescend(bst);
+	}
+	/*{
+		RedBlackBST<Player> bst;
 		TestPutInt(bst, 100000);
 
 		auto del_val = TestRankAndSelect(bst, 20000);
@@ -376,7 +395,7 @@ int main()
 		{
 			std::cout << "no size correct" << std::endl;
 		}
-	}
+	}*/
 	/*{
 		RedBlackBST<Player> bst;
 		TestPutInt(bst,100);
